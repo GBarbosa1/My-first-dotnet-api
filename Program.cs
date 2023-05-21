@@ -30,7 +30,7 @@ app.MapDelete("/deleteproduct/{code}",([FromRoute] string code)=>{
     var productSaved = ProductRepository.GetBy(code);
     ProductRepository.Remove(productSaved);
 });
-
+//teste
 app.Run();
 
 public static class ProductRepository{
