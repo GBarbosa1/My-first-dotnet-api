@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
+var configuration = app.Configuration;
+ProductRepository.Init(configuration);
 
 app.MapGet("/product/{code}",([FromRoute] string code)=>{
     var product = ProductRepository.GetBy(code);
@@ -24,10 +26,24 @@ app.MapDelete("/product/{code}",([FromRoute] string code)=>{
     ProductRepository.Remove(productSaved);
     return Results.Ok();
 });
+app.MapGet("/configuration/database",(IConfiguration configuration)=>{ //Iconfiguration return important data from appsettings.json
+    return Results.Ok(configuration["database:connection"]);
+});
+
+app.MapGet("/configuration/port",(IConfiguration configuration)=>{ //Iconfiguration return important data from appsettings.json
+    return Results.Ok($"{configuration["database:connection"]}/{configuration["database:port"]}");
+});
+
+
 app.Run();
 
 public static class ProductRepository{
     public static List<Product> Products { get; set; }
+
+    public static void Init(IConfiguration configuration){
+        var products = configuration.GetRequiredSection("Products").Get<List<Product>>();
+        Products = Products;
+    }
 
     public static void Add(Product product){
         if(Products == null)

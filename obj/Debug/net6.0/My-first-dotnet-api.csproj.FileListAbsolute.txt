@@ -19,3 +19,4 @@ C:\Users\Gb\Desktop\Gb\GitHub\My-first-dotnet-api\obj\Debug\net6.0\refint\My-fir
 C:\Users\Gb\Desktop\Gb\GitHub\My-first-dotnet-api\obj\Debug\net6.0\My-first-dotnet-api.pdb
 C:\Users\Gb\Desktop\Gb\GitHub\My-first-dotnet-api\obj\Debug\net6.0\My-first-dotnet-api.genruntimeconfig.cache
 C:\Users\Gb\Desktop\Gb\GitHub\My-first-dotnet-api\obj\Debug\net6.0\ref\My-first-dotnet-api.dll
+C:\Users\Gb\Desktop\Gb\GitHub\My-first-dotnet-api\bin\Debug\net6.0\appsettings.Staging.json
