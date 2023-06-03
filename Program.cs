@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using static Product;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<ApplicationDbContext>();
+builder.Services.AddSqlServer<ApplicationDbContext>(builder.Configuration["Database:SqlServer"]);
 
 var app = builder.Build();
 var configuration = app.Configuration;
@@ -15,9 +15,17 @@ app.MapGet("/product/{code}",([FromRoute] string code)=>{
         return Results.Ok(product);
     return Results.NotFound();
 });
-app.MapPost("/product",(Product product)=>{
-    ProductRepository.Add(product);
-    return Results.Created("/products/" + product.Code,product.Code);
+app.MapPost("/product",(ProductRequest productRequest, ApplicationDbContext context)=>{
+    var category = context.Categories.Where(c => c.Id == productRequest.CategoryId).First();
+    var product = new Product{
+        Code = productRequest.Code,
+        Name = productRequest.Name,
+        Description = productRequest.Description,
+        Category = category
+    };
+    context.Products.Add(product);
+    context.SaveChanges();
+    return Results.Created($"/products/{product.Id}",product.Id);
 });
 
 app.MapPut("/product",(Product product)=>{
@@ -87,17 +95,24 @@ public class Product{
 }
 
 public class ApplicationDbContext : DbContext {
+    
     public DbSet<Product> Products { get; set; }
+
+    public DbSet<Category> Categories { get; set; }
+
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {}
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         builder.Entity<Product>()
             .Property(p => p.Description).HasMaxLength(500).IsRequired(false);
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder options)
-        => options.UseSqlServer(
-            "Server=localhost;Database=Products;User Id=SA;Password=Writemaster1580@;MultipleActiveResultSets=true;Encrypt=YES;TrustServercertificate=YES"
-        );
-    
+        builder.Entity<Product>()
+            .Property(p => p.Name).HasMaxLength(120).IsRequired();
+        builder.Entity<Product>()
+            .Property(p => p.Code).HasMaxLength(20).IsRequired();
+        builder.Entity<Category>()
+            .ToTable("Categories");
+    } 
 }
+
+public record ProductRequest(string Code, string Name, string Description, int CategoryId, List<string> tags);
